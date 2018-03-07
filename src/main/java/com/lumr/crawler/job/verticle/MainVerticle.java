@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -37,6 +38,30 @@ public class MainVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
         router.route().handler(new RespContentTypeHandlerImpl());
 
+        router.post("/getWebPage").handler(ctx -> {
+            JsonObject json = ctx.getBodyAsJson();
+            eventBus.send("com.web.get", json, reply -> {
+                if (reply.succeeded()) {
+                    JsonObject result = (JsonObject) reply.result().body();
+                    ctx.response().end(result.toString());
+                } else {
+                    ctx.response().end(reply.cause().getMessage());
+                }
+            });
+        });
+
+        router.post("/postWebPage").handler(ctx -> {
+            JsonObject json = ctx.getBodyAsJson();
+            eventBus.send("com.web.post", json, reply -> {
+               if (reply.succeeded()){
+                   JsonObject result = (JsonObject) reply.result().body();
+                   ctx.response().end(result.toString());
+               }else {
+                   ctx.response().end(reply.cause().getMessage());
+               }
+            });
+        });
+
         router.get("/").handler(ctx -> {
             resp(ctx).end("hello");
             LOG.info("get /");
@@ -44,13 +69,13 @@ public class MainVerticle extends AbstractVerticle {
 
         router.get("/test").handler(ctx -> {
             String msg = ctx.request().getParam("msg");
-            eventBus.send("com.web.talk",msg);
+            eventBus.send("com.web.talk", msg);
             resp(ctx).end("你好");
             LOG.info("get /test");
         });
 
         router.get("/we").handler(ctx -> {
-            eventBus.publish("com.web.pub","publish");
+            eventBus.publish("com.web.pub", "publish");
             ctx.response().setChunked(true);
             resp(ctx).write("你好，").end("我的AA等等");
         });

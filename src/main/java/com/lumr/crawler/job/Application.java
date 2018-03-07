@@ -28,13 +28,6 @@ public class Application {
         SpringApplication.run(Application.class);
     }
 
-//    @Autowired
-    private void deployVerticles(SpringVerticleFactory factory, @Value("${vertx.springWorker.instances}") Integer instances, @Value("${vertx.worker.pool.size}") Integer workerSize) {
-        Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(workerSize));
-        vertx.registerVerticleFactory(factory);
-        vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName(), new DeploymentOptions().setInstances(instances));
-    }
-
     @EventListener
     @Autowired
     public void registeZookeeper(SpringVerticleFactory factory){
@@ -43,6 +36,7 @@ public class Application {
         Vertx.clusteredVertx(options,res->{
             if (res.succeeded()){
                 Vertx vertx = res.result();
+                vertx.registerVerticleFactory(factory);
                 vertx.deployVerticle(factory.prefix()+":"+MainVerticle.class.getName(),new DeploymentOptions().setInstances(4));
             }else {
                 System.exit(0);

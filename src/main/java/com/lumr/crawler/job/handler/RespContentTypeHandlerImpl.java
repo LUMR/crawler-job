@@ -7,6 +7,7 @@ import io.vertx.ext.web.handler.ResponseContentTypeHandler;
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
 /**
+ * 统一响应头处理
  * Created by work on 2018/3/7.
  *
  * @author lumr
