@@ -22,7 +22,7 @@ public class MainVerticle extends AbstractVerticle {
         start();
         vertx.deployVerticle("crawler-job:" + ClientVerticle.class.getName(), res -> {
             if (res.succeeded()) {
-                LOG.info("client 子部署完成");
+                LOG.info("web部署完成。");
                 startFuture.complete();
             } else
                 startFuture.fail(res.cause());
@@ -41,6 +41,17 @@ public class MainVerticle extends AbstractVerticle {
         router.post("/getWebPage").handler(ctx -> {
             JsonObject json = ctx.getBodyAsJson();
             eventBus.send("com.web.get", json, reply -> {
+                if (reply.succeeded()) {
+                    JsonObject result = (JsonObject) reply.result().body();
+                    ctx.response().end(result.toString());
+                } else {
+                    ctx.response().end(reply.cause().getMessage());
+                }
+            });
+        });
+
+        router.get("/getWebPage").handler(ctx->{
+            eventBus.send("com.web.get", "getTest", reply -> {
                 if (reply.succeeded()) {
                     JsonObject result = (JsonObject) reply.result().body();
                     ctx.response().end(result.toString());

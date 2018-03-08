@@ -1,6 +1,8 @@
 package com.lumr.crawler.job.verticle;
 
+import com.sun.media.jfxmedia.locator.ConnectionHolder;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
@@ -29,14 +31,26 @@ public class ClientVerticle extends AbstractVerticle {
     private final Logger LOG = LoggerFactory.getLogger(ClientVerticle.class);
 
     @Override
+    public void start(Future<Void> startFuture) throws Exception {
+        start();
+        LOG.info("client部署完成。");
+        startFuture.complete();
+    }
+
+    @Override
     public void start() throws Exception {
         WebClientOptions options = new WebClientOptions().setKeepAlive(true);
         WorkerExecutor executor = vertx.createSharedWorkerExecutor("worker");
         WebClient client = WebClient.create(vertx, options);
-
         EventBus eventBus = vertx.eventBus();
         eventBus.consumer("com.web.get", message -> {
             LOG.info("获得get任务：{}", message.body());
+            message.reply(new JsonObject().put("message","ok"));
+        }).completionHandler(ar->{
+            if (ar.succeeded())
+                LOG.info("com.web.get 订阅完成");
+            else
+                LOG.error("com.web.get 订阅失败",ar.cause());
         });
 
         eventBus.consumer("com.web.post", message -> {
@@ -70,6 +84,13 @@ public class ClientVerticle extends AbstractVerticle {
                     message.fail(-1, "保存失败，io错误");
             });
 
+            message.reply("ok");
+
+        }).completionHandler(ar->{
+            if (ar.succeeded())
+                LOG.info("com.web.post 订阅完成");
+            else
+                LOG.error("com.web.post 订阅失败",ar.cause());
         });
 
     }
