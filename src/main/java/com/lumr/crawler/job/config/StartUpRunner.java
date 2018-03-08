@@ -29,22 +29,13 @@ public class StartUpRunner implements CommandLineRunner{
 
     @Autowired
     private SpringVerticleFactory factory;
-    @Value("${computer.host}")
+    @Value("${run.host}")
     private String host;
-
-    private boolean ISWEB;
 
     @Override
     public void run(String... args) throws Exception {
 
-        if (args.length > 0) {
-            for (int i = 0; i < args.length; i++) {
-                if ("run".equals(args[i])) {
-                    ISWEB = "web".equals(args[i + 1]);
-                    break;
-                }
-            }
-        }
+        final String mode = System.getProperty("run.mode");
 
         ClusterManager manager = new ZookeeperClusterManager();
 //        ClusterManager mgr = new HazelcastClusterManager();
@@ -55,7 +46,7 @@ public class StartUpRunner implements CommandLineRunner{
                 Vertx vertx = res.result();
                 vertx.registerVerticleFactory(factory);
                 DeploymentOptions deploymentOptions = new DeploymentOptions().setInstances(4);
-                if (true)
+                if ("web".equals(mode))
                     vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName(), deploymentOptions);
                 else
                     vertx.deployVerticle(factory.prefix() + ":" + ClientVerticle.class.getName(), deploymentOptions);
