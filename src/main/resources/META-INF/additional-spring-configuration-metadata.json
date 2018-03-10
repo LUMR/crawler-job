@@ -1,0 +1,23 @@
+{
+    "properties": [
+        {
+            "name": "vertx.worker.pool.size",
+            "type": "java.lang.Integer",
+            "description": "Description for vertx.worker.pool.size."
+        },
+        {
+            "name": "vertx.springWorker.instances",
+            "type": "java.lang.Integer",
+            "description": "Description for vertx.springWorker.instances."
+        },
+        {
+            "name": "vertx.run.host",
+            "type": "java.lang.String",
+            "description": "Description for vertx.run.host."
+        },
+        {
+            "name": "vertx.run.port",
+            "type": "java.lang.Integer",
+            "description": "Description for vertx.run.port."
+        }
+    ] }
