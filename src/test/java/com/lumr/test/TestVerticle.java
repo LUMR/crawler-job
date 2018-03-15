@@ -4,6 +4,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Launcher;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.WebClient;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,17 +26,12 @@ public class TestVerticle extends AbstractVerticle {
     public void start() throws Exception {
         WebClient client = WebClient.create(vertx);
         //31427895  67158058
-        client.get(443, "www.zhihu.com", "/question/31427895").ssl(true).send(res -> {
+        client.get(443, "www.zhihu.com", "/question/31427896").ssl(true).send(res -> {
             if (res.succeeded()) {
                 Buffer buffer = res.result().body();
-                try (OutputStream out = new FileOutputStream("/Users/work/test1.html")) {
-                    buffer.getByteBuf().readBytes(out, buffer.length());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                System.out.println(buffer.length());
-
+                Document document = Jsoup.parse(buffer.toString());
+                System.out.println(document.title());
+                System.out.println(res.result().statusCode());
             } else {
                 System.out.println(res.cause().getMessage());
             }

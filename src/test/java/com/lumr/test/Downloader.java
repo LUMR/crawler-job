@@ -1,24 +1,12 @@
 package com.lumr.test;
 
-import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.crawler.Page;
-import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
-import edu.uci.ics.crawler4j.fetcher.PageFetcher;
-import edu.uci.ics.crawler4j.parser.HtmlParseData;
-import edu.uci.ics.crawler4j.parser.ParseData;
-import edu.uci.ics.crawler4j.parser.Parser;
-import edu.uci.ics.crawler4j.url.WebURL;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by work on 2018/3/9.
  *
  * @author lumr
  */
 public class Downloader {
-    private static final Logger logger = LoggerFactory.getLogger(Downloader.class);
+    /*private static final Logger logger = LoggerFactory.getLogger(Downloader.class);
 
     private final Parser parser;
     private final PageFetcher pageFetcher;
@@ -79,5 +67,5 @@ public class Downloader {
             }
         }
         return null;
-    }
+    }*/
 }

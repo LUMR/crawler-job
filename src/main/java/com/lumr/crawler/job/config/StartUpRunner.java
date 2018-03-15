@@ -2,6 +2,7 @@ package com.lumr.crawler.job.config;
 
 import com.lumr.crawler.job.verticle.ClientVerticle;
 import com.lumr.crawler.job.verticle.MainVerticle;
+import com.lumr.crawler.job.verticle.TimerVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -53,7 +54,7 @@ public class StartUpRunner implements CommandLineRunner {
 
                 String deployName;
                 if ("web".equals(mode))
-                    deployName = factory.prefix() + ":" + MainVerticle.class.getName();
+                    deployName = factory.prefix() + ":" + TimerVerticle.class.getName();
                 else
                     deployName = factory.prefix() + ":" + ClientVerticle.class.getName();
 
