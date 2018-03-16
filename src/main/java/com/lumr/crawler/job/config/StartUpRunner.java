@@ -54,7 +54,8 @@ public class StartUpRunner implements CommandLineRunner {
 
                 String deployName;
                 if ("web".equals(mode))
-                    deployName = factory.prefix() + ":" + TimerVerticle.class.getName();
+//                    deployName = factory.prefix() + ":" + TimerVerticle.class.getName();
+                    deployName = factory.prefix() + ":" + MainVerticle.class.getName();
                 else
                     deployName = factory.prefix() + ":" + ClientVerticle.class.getName();
 

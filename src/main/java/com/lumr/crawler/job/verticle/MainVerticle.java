@@ -38,38 +38,47 @@ public class MainVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
         router.route().handler(new RespContentTypeHandlerImpl());
 
+        JsonObject json = new JsonObject();
+        json.put("host", "www.zhihu.com").put("port", 443).put("ssl", true);
+
         router.post("/getWebPage").handler(ctx -> {
-            JsonObject json = ctx.getBodyAsJson();
-            eventBus.send("com.web.get", json, reply -> {
-                if (reply.succeeded()) {
-                    JsonObject result = (JsonObject) reply.result().body();
-                    ctx.response().end(result.toString());
-                } else {
-                    ctx.response().end(reply.cause().getMessage());
-                }
-            });
+            String index = ctx.request().getParam("index");
+
+            for (int i = Integer.valueOf(index), end = i + 500; i < end; i++) {
+                eventBus.send("com.web.get", json.copy().put("url", "/question/" + index), reply -> {
+                    if (reply.succeeded()) {
+                        JsonObject result = (JsonObject) reply.result().body();
+                        ctx.response().end(result.toString());
+                    } else {
+                        ctx.response().end(reply.cause().getMessage());
+                    }
+                });
+            }
         });
 
-        router.get("/getWebPage").handler(ctx->{
-            eventBus.send("com.web.get", "getTest", reply -> {
-                if (reply.succeeded()) {
-                    JsonObject result = (JsonObject) reply.result().body();
-                    ctx.response().end(result.toString());
-                } else {
-                    ctx.response().end(reply.cause().getMessage());
-                }
-            });
+        router.get("/getWebPage").handler(ctx -> {
+            String index = ctx.request().getParam("index");
+            ctx.response().setChunked(true);
+            for (int i = Integer.valueOf(index), end = i + 500; i < end; i++) {
+                eventBus.send("com.web.get", json.copy().put("url", "/question/" + i), reply -> {
+                    if (reply.succeeded()) {
+                        String result = (String) reply.result().body();
+                        ctx.response().write(result);
+                    } else {
+                        ctx.response().write(reply.cause().getMessage());
+                    }
+                });
+            }
         });
 
         router.post("/postWebPage").handler(ctx -> {
-            JsonObject json = ctx.getBodyAsJson();
             eventBus.send("com.web.post", json, reply -> {
-               if (reply.succeeded()){
-                   JsonObject result = (JsonObject) reply.result().body();
-                   ctx.response().end(result.toString());
-               }else {
-                   ctx.response().end(reply.cause().getMessage());
-               }
+                if (reply.succeeded()) {
+                    JsonObject result = (JsonObject) reply.result().body();
+                    ctx.response().end(result.toString());
+                } else {
+                    ctx.response().end(reply.cause().getMessage());
+                }
             });
         });
 

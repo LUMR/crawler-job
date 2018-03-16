@@ -51,20 +51,7 @@ public class ClientVerticle extends AbstractVerticle {
             executor.executeBlocking(hr->{
                 client.get(json.getInteger("port"),json.getString("host"), json.getString("url"))
                     .ssl(json.getBoolean("ssl", false))
-                    .send(resp->{
-                        if (resp.result().statusCode()!=200) {
-                            hr.fail("地址无效");
-                            return;
-                        }
-                        Buffer buffer = resp.result().body();
-                        Document document = Jsoup.parse(buffer.toString());
-                        LOG.info("标题:{},获得返回字节大小：{}",document.title(),buffer.length());
-                        JsonObject resjson = json.copy()
-                            .put("location",document.location())
-                            .put("title",document.title());
-                        redisTemplate.opsForList().rightPush("zhihu",resjson.toString());
-                        hr.complete();
-                    });
+                    .send(new ResponseResultHandler(hr,redisTemplate,json));
             },res->{
                 if (res.succeeded())
                     message.reply("保存成功");
@@ -86,7 +73,7 @@ public class ClientVerticle extends AbstractVerticle {
             executor.executeBlocking(hr -> {
                 client.post(json.getInteger("port"),json.getString("host"), json.getString("url"))
                     .ssl(json.getBoolean("ssl", false))
-                    .send(new ResponseResultHandler(hr, redisTemplate));
+                    .send(new ResponseResultHandler(hr, redisTemplate, json));
             }, res -> {
                 if (res.succeeded())
                     message.reply("保存成功");

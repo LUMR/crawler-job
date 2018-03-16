@@ -21,18 +21,25 @@ public class ResponseResultHandler implements Handler<AsyncResult<HttpResponse<B
 
     private final StringRedisTemplate redisTemplate;
 
-    public ResponseResultHandler(Future<Object> hr, StringRedisTemplate redisTemplate) {
+    private final JsonObject JSON;
+
+    public ResponseResultHandler(Future<Object> hr, StringRedisTemplate redisTemplate, JsonObject json) {
         this.hr = hr;
         this.redisTemplate = redisTemplate;
+        this.JSON = json;
     }
 
     @Override
     public void handle(AsyncResult<HttpResponse<Buffer>> resp) {
+        if (resp.result().statusCode()!=200) {
+            hr.fail("地址无效");
+            return;
+        }
         Buffer buffer = resp.result().body();
         Document document = Jsoup.parse(buffer.toString());
         LOGGER.info("标题:{},获得返回字节大小：{}",document.title(),buffer.length());
-        JsonObject json = new JsonObject().put("location",document.location()).put("title",document.title());
-        redisTemplate.opsForList().rightPush("zhihu",json.toString());
+        JSON.put("location",document.location()).put("title",document.title());
+        redisTemplate.opsForList().rightPush("zhihu",JSON.toString());
         hr.complete();
     }
 }

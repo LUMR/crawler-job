@@ -7,9 +7,7 @@ import io.vertx.ext.web.client.WebClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Created by work on 2018/3/9.
@@ -25,29 +23,28 @@ public class TestVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         WebClient client = WebClient.create(vertx);
-        //31427895  67158058
-        client.get(443, "www.zhihu.com", "/question/31427896").ssl(true).send(res -> {
+        Integer question = 31427896;
+        client.get(443, "www.zhihu.com", "/question/"+question).ssl(true).send(res -> {
             if (res.succeeded()) {
                 Buffer buffer = res.result().body();
-                Document document = Jsoup.parse(buffer.toString());
-                System.out.println(document.title());
-                System.out.println(res.result().statusCode());
+                System.out.println("返回数据大小："+buffer.length());
+                File file = new File("/Users/work/zhihu/"+question+".html");
+
+                try(OutputStream out = new FileOutputStream(file)) {
+                    buffer.getByteBuf().readBytes(out,buffer.length());
+                    /*for (int i = 0,leng = buffer.length(); i < leng; i+=1000) {
+                        buffer.getByteBuf().readBytes(bytes,i,1000);
+                        out.write(bytes);
+                    }*/
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 System.out.println(res.cause().getMessage());
             }
+            vertx.close();
         });
 
-        client.get(443,"www.zhihu.com","/api/v4/questions/31427895/similar-questions?include=data%5B*%5D.answer_count%2Cauthor%2Cfollower_count&limit=5")
-            .ssl(true).send(res->{
-                if (res.succeeded()){
-                    Buffer buffer = res.result().body();
-                    try (OutputStream out = new FileOutputStream("/Users/work/test2.html")) {
-                        buffer.getByteBuf().readBytes(out, buffer.length());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println(buffer.length());
-                }
-        });
     }
 }

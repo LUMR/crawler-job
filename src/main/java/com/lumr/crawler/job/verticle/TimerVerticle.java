@@ -30,6 +30,7 @@ public class TimerVerticle extends AbstractVerticle {
                 startFuture.fail(res.cause());
         });*/
         start();
+        startFuture.complete();
     }
 
     @Override
